@@ -1,0 +1,8 @@
+# Folders not to be tracked
+build
+install
+
+# Unwanted files
+build/Versions.v.i
+build/nscd/nscd
+build/tcb-offsets.h.d

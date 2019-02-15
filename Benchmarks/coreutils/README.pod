@@ -1,0 +1,100 @@
+This is the readme file for Coreutils-8.23 ported for use on PodArch.
+Please read carefully the below mentioned changes/directions to use.
+
+Not all utilities from coreutils package are supported on PodArch, 
+please read the makefiles mentioned below to know about the list of
+supported binaries.
+
+We are not installing the coreutils package,only compiling the binaries for benchmarking
+on Podarch. To do this follow the given steps in order to generate the library files and
+dependencies for coreutils binaries.
+
+  1.  cd COREUTILS_DIR
+      ./configure
+
+   `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.
+
+     Running `configure' might take a while.  While running, it prints
+     some messages telling which features it is checking for.
+
+  
+  2.  make
+
+     Type `make' to compile the package.
+
+  
+  3.  make check
+
+    Optionally, type `make check' to run any self-tests that come with
+    the package, generally using the just-built uninstalled binaries.
+
+  4. Next to compile the vanilla and pod binaries follow the steps in the
+     respective sections below.
+
+
+Coreutils Vanilla
+===========================================================
+The vanilla binaries for coreutils compiled in this folder are nothing but the
+statically compiled binaries.
+
+Contents:
+	
+	1. This folder contains a copy of the source files from src/ folder.
+
+	2. There is also a Makefile located in the folder, specifically for compiling
+	   the static vanilla binaries.
+
+Compilation:
+
+	Please read the src/coreutils_vanilla/Makefile to know the library files required to
+	compile the coreutils binaries and also use this file to compile the vanilla static
+	binaries.
+
+	1.  cd COREUTILS_DIR/src/coreutils_vanilla
+	    make
+
+	   Type `make` in src/coreutils_vanilla/ folder to compile the static vanilla binaries.
+
+
+Coreutils Pod Binaries
+=============================================================
+Please read the src/coreutils_vanilla/Makefile to know the library files required to
+compile the coreutils binaries and also use this file to compile the vanilla static
+binaries.
+
+Contents:
+
+	1. This folder contains a copy of the source files from src/ folder.
+
+	2. There is also a Makefile located in the folder, specifically for compiling
+	   the static pod binaries as per the directions mentioned in the toolchain.
+
+Changes:
+
+	1. A #include "pod_header.h" statement has been added to the source files(.c files) 
+	   in this directory to wrap the glibc function calls for file operations used by the 
+	   coreutils binaries. This pod_header.h file is located in PodArch toolchain folder
+	   on the path src/toolchain/ .
+
+Compilation:
+
+	1. The PodArch toolchain has a set of defined instructions for pod sealing of a binary,
+	   the same set of steps have been followed to compile the coreutils binaries as pod binaries
+	   in this folder's Makefile. Please read through the "$(EXECUTABLES)" target to see the
+	   exact steps followed.
+
+	2.  cd COREUTILS_DIR/src/coreutils_pod/
+	    make
+
+	   Type `make` in src/coreutils_pod/ folder to compile the static pod binaries.
+
+
+PodArch Toolchain
+================================================================
+
+The PodArch toolchain is primarily used for converting a normal static binary to a pod binary,
+the process which is called as pod sealing.
+
+Within the coreutils directory structure the PodArch toolchain is located at src/toolchain
+wherein it contains the binaries and instructions for pod sealing a binary.

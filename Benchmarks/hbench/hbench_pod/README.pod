@@ -1,0 +1,45 @@
+======================
+Hbench-OS for PodArch
+======================
+
+Only the x86_64 versions of this Hbench-OS directory have been ported for PodArch.
+
+Compile Hbench-OS PodArch Binaries
+------------------------------------
+
+1.  bash pod_hbench.sh
+
+    To compile the pod sealed binaries for Hbench in this directory run the command
+    'bash pod_hbench.sh' from the top level directory.
+  
+    This will generate the static non-encrypted as well as pod sealed binaries in the
+    directory "bin/linux_x86-64".
+
+
+===========================
+Directory and File Changes
+===========================
+1.  "pod_hbench.sh" is the shell script file in the top level directory containing
+    the commands to compile the pod sealed binaries.
+
+2.  "toolchain/" folder contains the PodArch toolchain executables needed for pod 
+    sealing.
+
+3.  "src" directory contains all of the source files along with and additional
+    "pod_header.h" file. 
+
+4.  "src/pod_header.h" contains the wrapper for system calls which are needed for
+	pod sealing of binaries, to provide data encryption and decryption via the
+	pod's public pages.
+
+5.  Within the "src/" directory the source files(.c files) of hbench binaries have
+    been modified to include "pod_header.h" which contains the wrappers for various
+    system calls.
+
+6.  "src/Makefile" has been changed to include "WRAP" flag which specifies the
+    wrappers for system calls to be included during compilation of binaries.
+    A LDFLAG1 flag has also been added which specifies "-static" for compiling
+    binaries statically and uses the "toolchain/page_aligner" as the linker
+    script for page aligning the sections of pod binary.
+
+Note: For a better understanding of above briefed changes please go through the actual files.

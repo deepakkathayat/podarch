@@ -1,0 +1,199 @@
+Abstract—Secure execution of applications on untrusted op-
+erating systems is a fundamental security primitive that has
+been challenging to achieve. In this paper, we propose a new
+architecture feature called P ODA RCH, which makes it easy to
+import executables on an OS without risking the target system’s
+security or the execution of the imported application. P ODA RCH
+can be implemented as a backwards-compatible extension to
+the Intel x86 ISA, and overall, offers strong compatibility with
+existing applications and OSes beyond those offered by several
+existing architectural primitives (e.g., Intel SGX). We present
+a complete system implementation of a P ODA RCH CPU, the
+associated toolchain and a modified Linux OS and find that the
+adaption effort requires 415 lines of code change to the Linux
+kernel. Thus, P ODA RCH offers a new design point in the space
+of architectural primitives that commodity CPU designers can
+consider in the emerging security extensions to their ISA.
+I.
+I NTRODUCTION
+Current CPUs separate software stacks in distinct privi-
+lege rings for security and isolation. For example, modern
+OSes use architectural features to separate themselves from
+malicious applications [4]. However, recently, this one-way
+isolation has come into question, making the OS the Achilles
+heel. Several traditional attacks such as buffer overflows and
+memory corruption in the OS can subvert it after which the
+malware gains unrestrained access to the sensitive application
+data in the memory. Users often encounter a situation where
+they need to perform security-sensitive computation on an
+untrusted operating system or software stack. There are several
+examples of such computation — for example, a SSL or
+SSH server on vulnerable web servers, a face recognition
+computation running on an untrusted cloud server, or even an
+encrypted user-level file system client running on a borrowed
+laptop device. In these applications, the sensitive user-level
+application needs to be protected during execution from the
+co-resident malware application or the OS. Executing such
+applications with strong isolation guarantees, even in a hostile
+or compromised legacy OS environment is an important secu-
+rity problem, which motivates rethinking existing architectural
+support for such a primitive.
+To address this concern, we seek a security primitive that
+allows an application to load, execute and terminate itself on a
+potentially compromised OS. We call such a primitive a secure
+application execution primitive. Several previous works have
+proposed hypervisor-based mechanisms to securely execute
+sensitive applications [18], [25], [45]. Instead, in this paper,
+we propose P ODA RCH— a new architectural primitive that
+excludes all other software code, but for the sensitive applica-
+tion itself, from the TCB. Our design carefully minimizes the
+assumptions, eliminating the hypervisor, to achieve a design
+that can be implemented completely in the CPU.
+Our solution offers a new point in this design space,
+specifically: no trusted software TCB, good compatibility with
+commodity Unix system and process semantics, no assump-
+tions about requiring a secure boot or remote attestation, and
+zero developer effort in adapting several existing applications.
+P ODA RCH retains the resource provisioning capacity with
+the OS while delegating the security of the applications
+to the trusted CPU. Thus, P ODA RCH keeps the semantics
+of the virtual memory management, system call handling,
+exception handling, scheduling and process management
+largely unchanged, which makes it easy to adopt in
+commodity operating systems. Further, we provide a detailed
+security analysis of our design, identifying several avenues of
+subtle attacks that are not considered in previous architecture-
+based solutions (e.g., Bastion [15] and SecureMe [19]).
+P ODA RCH introduces the concept of pod, a virtual execu-
+tion environment for the user-level application that delegates
+resource management functions to the untrusted OS, while
+enabling the CPU to ensure its security, thus maintaining
+transparency with legacy Oses. Pod applications are standard
+x86 user-level programs that are guaranteed to execute in
+an isolated virtual environment. Converting existing ELF x86
+applications to P ODA RCH-compliant executables is straight-
+forward and requires no developer or user involvement. That
+is, a simple binary rewriting or compilation step (integrated in
+our P ODA RCH compiler toolchain) performs this conversion.
+Designing P ODA RCH as an extension to existing Intel x86
+architecture allows backward compatibility with legacy
+applications. Our tools are online [6].
+Purely architectural primitives for secure application execu-
+tion are on the rise. Intel has recently proposed, independently
+and concurrently with our work, a related primitive called
+SGX. We explain how our solution differs from SGX both
+from a conceptual perspective and in details, offering better
+compatibility with legacy OSes and executables while achiev-
+ing the same level of security. We present a comprehensive
+security analysis of our solution. We implement P ODA RCH
+in the MMU of QEMU x86-64 emulator [7] and benchmark
+our P ODA RCH implementation on Linux v3.2, running SPEC
+CINT2006 [24] and HBench-OS [13] which demonstrates high
+compatibility. The average performance overhead is 66.07 %
+for SPEC CINT2006 on QEMU. P ODA RCH’s performance can
+be aggressively optimized in a full CPU-based deployment.
+To summarize, we make the following contributions:
+• We introduce P ODA RCH, a new CPU architecture which
+fulfills the desirable secure primitives and protects an
+application on an untrusted platform trusting only the
+underlying hardware.
+Abstract—Secure execution of applications on untrusted op-
+erating systems is a fundamental security primitive that has
+been challenging to achieve. In this paper, we propose a new
+architecture feature called P ODA RCH, which makes it easy to
+import executables on an OS without risking the target system’s
+security or the execution of the imported application. P ODA RCH
+can be implemented as a backwards-compatible extension to
+the Intel x86 ISA, and overall, offers strong compatibility with
+existing applications and OSes beyond those offered by several
+existing architectural primitives (e.g., Intel SGX). We present
+a complete system implementation of a P ODA RCH CPU, the
+associated toolchain and a modified Linux OS and find that the
+adaption effort requires 415 lines of code change to the Linux
+kernel. Thus, P ODA RCH offers a new design point in the space
+of architectural primitives that commodity CPU designers can
+consider in the emerging security extensions to their ISA.
+I.
+I NTRODUCTION
+Current CPUs separate software stacks in distinct privi-
+lege rings for security and isolation. For example, modern
+OSes use architectural features to separate themselves from
+malicious applications [4]. However, recently, this one-way
+isolation has come into question, making the OS the Achilles
+heel. Several traditional attacks such as buffer overflows and
+memory corruption in the OS can subvert it after which the
+malware gains unrestrained access to the sensitive application
+data in the memory. Users often encounter a situation where
+they need to perform security-sensitive computation on an
+untrusted operating system or software stack. There are several
+examples of such computation — for example, a SSL or
+SSH server on vulnerable web servers, a face recognition
+computation running on an untrusted cloud server, or even an
+encrypted user-level file system client running on a borrowed
+laptop device. In these applications, the sensitive user-level
+application needs to be protected during execution from the
+co-resident malware application or the OS. Executing such
+applications with strong isolation guarantees, even in a hostile
+or compromised legacy OS environment is an important secu-
+rity problem, which motivates rethinking existing architectural
+support for such a primitive.
+To address this concern, we seek a security primitive that
+allows an application to load, execute and terminate itself on a
+potentially compromised OS. We call such a primitive a secure
+application execution primitive. Several previous works have
+proposed hypervisor-based mechanisms to securely execute
+sensitive applications [18], [25], [45]. Instead, in this paper,
+we propose P ODA RCH— a new architectural primitive that
+excludes all other software code, but for the sensitive applica-
+tion itself, from the TCB. Our design carefully minimizes the
+assumptions, eliminating the hypervisor, to achieve a design
+that can be implemented completely in the CPU.
+Our solution offers a new point in this design space,
+specifically: no trusted software TCB, good compatibility with
+commodity Unix system and process semantics, no assump-
+tions about requiring a secure boot or remote attestation, and
+zero developer effort in adapting several existing applications.
+P ODA RCH retains the resource provisioning capacity with
+the OS while delegating the security of the applications
+to the trusted CPU. Thus, P ODA RCH keeps the semantics
+of the virtual memory management, system call handling,
+exception handling, scheduling and process management
+largely unchanged, which makes it easy to adopt in
+commodity operating systems. Further, we provide a detailed
+security analysis of our design, identifying several avenues of
+subtle attacks that are not considered in previous architecture-
+based solutions (e.g., Bastion [15] and SecureMe [19]).
+P ODA RCH introduces the concept of pod, a virtual execu-
+tion environment for the user-level application that delegates
+resource management functions to the untrusted OS, while
+enabling the CPU to ensure its security, thus maintaining
+transparency with legacy Oses. Pod applications are standard
+x86 user-level programs that are guaranteed to execute in
+an isolated virtual environment. Converting existing ELF x86
+applications to P ODA RCH-compliant executables is straight-
+forward and requires no developer or user involvement. That
+is, a simple binary rewriting or compilation step (integrated in
+our P ODA RCH compiler toolchain) performs this conversion.
+Designing P ODA RCH as an extension to existing Intel x86
+architecture allows backward compatibility with legacy
+applications. Our tools are online [6].
+Purely architectural primitives for secure application execu-
+tion are on the rise. Intel has recently proposed, independently
+and concurrently with our work, a related primitive called
+SGX. We explain how our solution differs from SGX both
+from a conceptual perspective and in details, offering better
+compatibility with legacy OSes and executables while achiev-
+ing the same level of security. We present a comprehensive
+security analysis of our solution. We implement P ODA RCH
+in the MMU of QEMU x86-64 emulator [7] and benchmark
+our P ODA RCH implementation on Linux v3.2, running SPEC
+CINT2006 [24] and HBench-OS [13] which demonstrates high
+compatibility. The average performance overhead is 66.07 %
+for SPEC CINT2006 on QEMU. P ODA RCH’s performance can
+be aggressively optimized in a full CPU-based deployment.
+To summarize, we make the following contributions:
+• We introduce P ODA RCH, a new CPU architecture which
+fulfills the desirable secure primitives and protects an
+application on an untrusted platform trusting only the
+underlying hardware.
+
