@@ -1,0 +1,17 @@
+================================
+PodArch Loadable Kernel Module
+================================
+
+This loadable kernel module is needed to intercept the ELF loader in PodArch
+and check whether a executable is a pod binary or not and if yes then to execute
+the pod_load instruction to notify the PodArch CPU about the binary being a pod.
+
+
+Steps to compile
+-----------------------
+Type 'make' to compile the code and generate the loadable kernel module as 'pod_kret.ko'.
+
+Usage
+-------
+Make sure you have loaded the kernel module before executing any pod binaries. To do so
+insert the kernel module as 'insmod pod_kret.ko' as a root or sudo user.
